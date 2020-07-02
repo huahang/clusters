@@ -1,0 +1,42 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+def configure_node(node)
+  node.vm.box = "centos/8"
+  node.vm.box_check_update = true
+  node.vm.synced_folder "./data", "/data"
+  node.vm.network "public_network"
+  node.vm.network "private_network", type: "dhcp"
+
+  node.vm.provider "virtualbox" do |vb|
+    vb.gui = false 
+    vb.memory = "2048"
+    vb.cpus = 2
+    vb.customize ["modifyvm", :id, "--cpuexecutioncap", "100"]
+    vb.default_nic_type = "82545EM"
+  end
+
+  node.vm.provision "shell", inline: <<-SHELL
+    yum -y update
+    yum -y install kernel-devel
+  SHELL
+end
+
+Vagrant.configure("2") do |config|
+
+  config.vm.define "node01" do |node01|
+    node01.vm.hostname = "node01"
+    configure_node(node01)
+  end
+
+  config.vm.define "node02" do |node02|
+    node02.vm.hostname = "node02"
+    configure_node(node02)
+  end
+
+  config.vm.define "node03" do |node03|
+    node03.vm.hostname = "node03"
+    configure_node(node03)
+  end
+
+end
