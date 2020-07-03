@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 def configure_node(node)
-  node.vm.box = "centos/8"
+  node.vm.box = "bento/centos-8"
   node.vm.box_check_update = true
   node.vm.synced_folder "./data", "/data"
   node.vm.network "public_network"
@@ -18,7 +18,10 @@ def configure_node(node)
 
   node.vm.provision "shell", inline: <<-SHELL
     yum -y update
+    yum -y upgrade
     yum -y install kernel-devel
+    yum -y install elfutils-libelf-devel
+    yum -y groupinstall Development
   SHELL
 end
 
