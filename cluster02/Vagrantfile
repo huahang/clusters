@@ -1,0 +1,38 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+def configure_node(node)
+  node.vm.box = "debian/jessie64"
+  node.vm.box_check_update = true
+  node.vm.synced_folder "./data", "/data"
+
+  node.vm.provider "virtualbox" do |v|
+    v.gui = false
+    v.memory = "2048"
+    v.cpus = 2
+    v.customize ["modifyvm", :id, "--cpuexecutioncap", "100"]
+    v.customize ["modifyvm", :id, "--hpet", "on"]
+    v.default_nic_type = "82545EM"
+  end
+
+  node.vm.provision "shell", inline: <<-SHELL
+    apt-get -y update
+    apt-get -y install build-essential
+    apt-get -y install cmake
+    apt-get -y install emacs
+    apt-get -y install ninja-build
+    apt-get -y install git
+    apt-get -y install htop
+    apt-get -y install zsh
+    apt-get -y upgrade
+  SHELL
+end
+
+Vagrant.configure("2") do |config|
+
+  config.vm.define "node01" do |node01|
+    node01.vm.hostname = "node01"
+    configure_node(node01)
+  end
+
+end
